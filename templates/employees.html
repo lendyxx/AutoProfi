@@ -1,0 +1,214 @@
+
+{% extends "base.html" %}
+
+{% block title %}Сотрудники — АвтоПрофи-Сервис{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Сотрудники</h2>
+        <p class="text-secondary mb-0">
+            Управление персоналом и должностями
+        </p>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+{% endwith %}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-secondary small">Всего сотрудников</div>
+                <div class="fs-3 fw-bold">{{ total_employees }}</div>
+                <i class="bi bi-people text-secondary"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-secondary small">Активные сотрудники</div>
+                <div class="fs-3 fw-bold">{{ active_employees }}</div>
+                <i class="bi bi-person-check text-secondary"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-2">
+            <div class="col-md-5">
+                <input
+                    type="text"
+                    name="search"
+                    class="form-control"
+                    placeholder="Поиск по ФИО, телефону или email"
+                    value="{{ search }}"
+                >
+            </div>
+
+            <div class="col-md-3">
+                <select name="role" class="form-select">
+                    <option value="">Все должности</option>
+                    {% for role in roles %}
+                    <option value="{{ role }}"
+                        {% if selected_role == role %}selected{% endif %}>
+                        {{ role }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">Все статусы</option>
+                    <option value="Активен"
+                        {% if selected_status == "Активен" %}selected{% endif %}>
+                        Активен
+                    </option>
+                    <option value="Неактивен"
+                        {% if selected_status == "Неактивен" %}selected{% endif %}>
+                        Неактивен
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex gap-2">
+                <button class="btn btn-light flex-fill" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+
+                <a href="{{ url_for('employees.index') }}"
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <strong>Список сотрудников</strong>
+        <span class="text-secondary ms-2">
+            Найдено: {{ employees|length }}
+        </span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>ФИО</th>
+                    <th>Телефон</th>
+                    <th>Email</th>
+                    <th>Должность</th>
+                    <th>Статус</th>
+                    <th>Изменить статус</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for employee in employees %}
+                <tr>
+                    <td>#{{ employee.id }}</td>
+                    <td class="fw-bold">{{ employee.name }}</td>
+                    <td>{{ employee.phone }}</td>
+                    <td>{{ employee.email or "—" }}</td>
+                    <td>
+                        <span class="badge bg-secondary">
+                            {{ employee.position }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if employee.status == "Активен" %}
+                            <span class="badge bg-secondary">Активен</span>
+                        {% else %}
+                            <span class="badge bg-danger">Неактивен</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form
+                            method="POST"
+                            action="{{ url_for('employees.change_status', employee_id=employee.id) }}">
+
+                            {% if employee.status == "Активен" %}
+                                <input type="hidden" name="status" value="Неактивен">
+                                <button class="btn btn-sm btn-outline-warning" type="submit">
+                                    Отключить
+                                </button>
+                            {% else %}
+                                <input type="hidden" name="status" value="Активен">
+                                <button class="btn btn-sm btn-outline-light" type="submit">
+                                    Активировать
+                                </button>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-secondary">
+                        Сотрудники не найдены
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <strong>Добавить сотрудника</strong>
+    </div>
+
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('employees.create') }}">
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">ФИО *</label>
+                    <input name="name" class="form-control" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Телефон *</label>
+                    <input name="phone" class="form-control" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input name="email" type="email" class="form-control">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Должность *</label>
+                    <select name="position" class="form-select" required>
+                        <option value="">Выберите должность</option>
+                        {% for role in roles %}
+                        <option value="{{ role }}">{{ role }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-light mt-3">
+                <i class="bi bi-person-plus"></i>
+                Добавить сотрудника
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
