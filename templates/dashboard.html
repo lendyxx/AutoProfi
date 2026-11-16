@@ -1,0 +1,153 @@
+
+{% extends "base.html" %}
+
+{% block title %}Главная — АвтоПрофи{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Главная панель</h1>
+        <p>Добро пожаловать! Вот что происходит в вашем автосервисе.</p>
+    </div>
+
+    <button class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Новая заявка
+    </button>
+</div>
+
+<div class="row g-3 mb-4">
+
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-top">
+                <span>Всего заявок</span>
+                <div class="stat-icon blue"><i class="bi bi-clipboard-data"></i></div>
+            </div>
+            <h2>{{ stats.total_requests }}</h2>
+            <small>За всё время</small>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-top">
+                <span>В работе</span>
+                <div class="stat-icon orange"><i class="bi bi-tools"></i></div>
+            </div>
+            <h2>{{ stats.in_progress }}</h2>
+            <small>Активные заявки</small>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-top">
+                <span>Ожидают согласования</span>
+                <div class="stat-icon purple"><i class="bi bi-clock-history"></i></div>
+            </div>
+            <h2>{{ stats.waiting }}</h2>
+            <small>Требуют внимания</small>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-top">
+                <span>Выручка за месяц</span>
+                <div class="stat-icon green"><i class="bi bi-wallet2"></i></div>
+            </div>
+            <h2>{{ "{:,.0f}".format(stats.revenue).replace(",", " ") }} ₽</h2>
+            <small>Демонстрационные данные</small>
+        </div>
+    </div>
+
+</div>
+
+<div class="row g-3">
+
+    <div class="col-xl-8">
+        <div class="content-card">
+            <div class="card-heading">
+                <div>
+                    <h5>Последние заявки</h5>
+                    <p>Недавно созданные обращения клиентов</p>
+                </div>
+                <button class="btn btn-light btn-sm">Все заявки</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Заявка</th>
+                            <th>Клиент</th>
+                            <th>Автомобиль</th>
+                            <th>Дата</th>
+                            <th>Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in requests %}
+                        <tr>
+                            <td><strong>#{{ request.id }}</strong></td>
+                            <td>{{ request.client }}</td>
+                            <td>{{ request.car }}</td>
+                            <td>{{ request.date }}</td>
+                            <td>
+                                {% if request.status == "Готово" %}
+                                    <span class="status completed">{{ request.status }}</span>
+                                {% elif request.status == "В работе" %}
+                                    <span class="status progress">{{ request.status }}</span>
+                                {% elif request.status == "Ожидает согласования" %}
+                                    <span class="status waiting">{{ request.status }}</span>
+                                {% else %}
+                                    <span class="status diagnostic">{{ request.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="content-card">
+            <div class="card-heading">
+                <div>
+                    <h5>Состояние сервиса</h5>
+                    <p>Текущая ситуация</p>
+                </div>
+            </div>
+
+            <div class="service-item">
+                <span class="service-dot green-dot"></span>
+                <div>
+                    <strong>Система запущена</strong>
+                    <small>Локальное приложение</small>
+                </div>
+            </div>
+
+            <div class="service-item">
+                <span class="service-dot orange-dot"></span>
+                <div>
+                    <strong>Firebase</strong>
+                    <small>Ожидает подключения</small>
+                </div>
+            </div>
+
+            <div class="service-item">
+                <span class="service-dot blue-dot"></span>
+                <div>
+                    <strong>Демонстрационные данные</strong>
+                    <small>Тестовый режим</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

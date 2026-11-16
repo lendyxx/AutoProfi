@@ -1,0 +1,338 @@
+
+{% extends "base.html" %}
+
+{% block title %}Склад запчастей — АвтоПрофи-Сервис{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Склад запчастей</h2>
+        <p class="text-secondary mb-0">
+            Учёт запасов, поступлений и списаний
+        </p>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+{% endwith %}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-secondary small">Позиций в каталоге</div>
+                <div class="fs-3 fw-bold">{{ total_parts }}</div>
+                <i class="bi bi-box-seam text-secondary"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-secondary small">Всего единиц на складе</div>
+                <div class="fs-3 fw-bold">{{ total_quantity }}</div>
+                <i class="bi bi-boxes text-secondary"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-secondary small">Низкий остаток</div>
+                <div class="fs-3 fw-bold {% if low_stock > 0 %}text-warning{% endif %}">
+                    {{ low_stock }}
+                </div>
+                <i class="bi bi-exclamation-triangle text-secondary"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-2">
+            <div class="col-md-5">
+                <input
+                    type="text"
+                    name="search"
+                    class="form-control"
+                    placeholder="Поиск по названию или артикулу"
+                    value="{{ search }}"
+                >
+            </div>
+
+            <div class="col-md-3">
+                <select name="category" class="form-select">
+                    <option value="">Все категории</option>
+                    {% for category in categories %}
+                    <option value="{{ category }}"
+                        {% if selected_category == category %}selected{% endif %}>
+                        {{ category }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select name="stock" class="form-select">
+                    <option value="">Все остатки</option>
+                    <option value="low"
+                        {% if stock_filter == "low" %}selected{% endif %}>
+                        Низкий остаток
+                    </option>
+                    <option value="available"
+                        {% if stock_filter == "available" %}selected{% endif %}>
+                        Достаточно
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex gap-2">
+                <button class="btn btn-light flex-fill" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+                <a href="{{ url_for('parts.index') }}"
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Складские запасы</strong>
+        <span class="text-secondary">Найдено: {{ parts|length }}</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Запчасть</th>
+                    <th>Артикул</th>
+                    <th>Категория</th>
+                    <th>Остаток</th>
+                    <th>Закупка</th>
+                    <th>Продажа</th>
+                    <th>Состояние</th>
+                    <th>Операции</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for part in parts %}
+                <tr>
+                    <td>#{{ part.id }}</td>
+
+                    <td class="fw-bold">{{ part.name }}</td>
+
+                    <td>{{ part.article }}</td>
+
+                    <td>
+                        <span class="badge bg-secondary">
+                            {{ part.category }}
+                        </span>
+                    </td>
+
+                    <td class="fw-bold">{{ part.quantity }} шт.</td>
+
+                    <td>{{ "{:,.0f}".format(part.purchase_price).replace(",", " ") }} ₽</td>
+
+                    <td>{{ "{:,.0f}".format(part.sale_price).replace(",", " ") }} ₽</td>
+
+                    <td>
+                        {% if part.quantity == 0 %}
+                            <span class="badge bg-danger">Нет в наличии</span>
+                        {% elif part.quantity <= part.min_quantity %}
+                            <span class="badge bg-warning text-dark">Мало</span>
+                        {% else %}
+                            <span class="badge bg-secondary">В наличии</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-light"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#movement-{{ part.id }}">
+                            <i class="bi bi-arrow-left-right"></i>
+                        </button>
+                    </td>
+                </tr>
+
+                <tr class="collapse" id="movement-{{ part.id }}">
+                    <td colspan="9">
+                        <form
+                            method="POST"
+                            action="{{ url_for('parts.movement', part_id=part.id) }}"
+                            class="row g-2 align-items-end p-2">
+
+                            <div class="col-md-3">
+                                <label class="form-label">Операция</label>
+                                <select name="type" class="form-select" required>
+                                    <option value="Поступление">Поступление</option>
+                                    <option value="Списание">Списание</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label">Количество</label>
+                                <input
+                                    type="number"
+                                    name="quantity"
+                                    class="form-control"
+                                    min="1"
+                                    required
+                                >
+                            </div>
+
+                            <div class="col-md-5">
+                                <label class="form-label">Комментарий</label>
+                                <input
+                                    type="text"
+                                    name="comment"
+                                    class="form-control"
+                                    placeholder="Причина операции"
+                                >
+                            </div>
+
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-light w-100">
+                                    Выполнить
+                                </button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+
+                {% else %}
+                <tr>
+                    <td colspan="9" class="text-center py-4 text-secondary">
+                        Запчасти не найдены
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <strong>Добавить запчасть</strong>
+    </div>
+
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('parts.create') }}">
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">Название *</label>
+                    <input name="name" class="form-control" required>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Артикул *</label>
+                    <input name="article" class="form-control" required>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Категория *</label>
+                    <select name="category" class="form-select" required>
+                        <option value="">Выберите категорию</option>
+                        {% for category in categories %}
+                        <option value="{{ category }}">{{ category }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Начальный остаток *</label>
+                    <input type="number" name="quantity"
+                           class="form-control" min="0" required>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Минимальный остаток *</label>
+                    <input type="number" name="min_quantity"
+                           class="form-control" min="0" required>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Закупочная цена (₽) *</label>
+                    <input type="number" name="purchase_price"
+                           class="form-control" min="1" required>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Цена продажи (₽) *</label>
+                    <input type="number" name="sale_price"
+                           class="form-control" min="1" required>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn btn-light mt-3">
+                <i class="bi bi-plus-lg"></i> Добавить запчасть
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <strong>Последние складские операции</strong>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Запчасть</th>
+                    <th>Артикул</th>
+                    <th>Операция</th>
+                    <th>Количество</th>
+                    <th>Комментарий</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for movement in movements %}
+                <tr>
+                    <td>{{ movement.date }}</td>
+                    <td>{{ movement.part_name }}</td>
+                    <td>{{ movement.article }}</td>
+                    <td>
+                        {% if movement.type == "Поступление" %}
+                            <span class="badge bg-secondary">Поступление</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Списание</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ movement.quantity }} шт.</td>
+                    <td>{{ movement.comment }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-3 text-secondary">
+                        Складских операций пока нет
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

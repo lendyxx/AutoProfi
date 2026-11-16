@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}АвтоПрофи-Сервис{% endblock %}</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+<body>
+
+<div class="sidebar">
+
+    <div class="brand">
+        <div class="brand-icon">
+            <i class="bi bi-car-front-fill"></i>
+        </div>
+        <div>
+            <strong>AUTO<span>PROFI</span></strong>
+            <small>СИСТЕМА АВТОСЕРВИСА</small>
+        </div>
+    </div>
+
+    <div class="nav-caption">РАБОЧЕЕ ПРОСТРАНСТВО</div>
+
+    <a href="/" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <i class="bi bi-grid-1x2-fill"></i>
+        <span>Главная панель</span>
+    </a>
+
+    <a href="{{ url_for('requests.index') }}"
+       class="nav-link {% if request.endpoint and request.endpoint.startswith('requests.') %}active{% endif %}">
+        <i class="bi bi-clipboard2-check"></i>
+        <span>Заявки</span>
+        <span class="nav-count">3</span>
+    </a>
+
+    <a href="{{ url_for('clients.index') }}"
+        class="nav-link {% if request.endpoint == 'clients.index' %}active{% endif %}">
+        <i class="bi bi-people"></i> Клиенты
+    </a>
+
+    <a href="{{ url_for('vehicles.index') }}"
+        class="nav-link {% if request.endpoint == 'vehicles.index' %}active{% endif %}">
+        <i class="bi bi-car-front"></i> Автомобили
+    </a>
+
+    <div class="nav-caption">УПРАВЛЕНИЕ</div>
+
+    <a href="{{ url_for('work_catalog.index') }}"
+        class="nav-link {% if request.endpoint == 'work_catalog.index' %}active{% endif %}">
+        <i class="bi bi-wrench-adjustable"></i> Работы и услуги
+    </a>
+
+    <a href="{{ url_for('parts.index') }}"
+        class="nav-link {% if request.endpoint == 'parts.index' %}active{% endif %}">
+        <i class="bi bi-box-seam"></i> Склад запчастей
+    </a>
+
+    <a href="#" class="nav-link">
+        <i class="bi bi-person-badge"></i>
+        <span>Сотрудники</span>
+    </a>
+
+    <a href="#" class="nav-link">
+        <i class="bi bi-graph-up-arrow"></i>
+        <span>Отчёты</span>
+    </a>
+
+    <div class="sidebar-bottom">
+        <div class="system-status">
+            <span class="status-dot"></span>
+            <div>
+                <strong>Система активна</strong>
+                <small>Демонстрационный режим</small>
+            </div>
+        </div>
+
+        <div class="sidebar-version">AUTO PROFI · v1.0</div>
+    </div>
+
+</div>
+
+<main class="main-content">
+
+    <header class="topbar">
+
+        <div class="topbar-left">
+            <div class="topbar-label">АВТОПРОФИ / WORKSPACE</div>
+            <div class="topbar-title">Панель управления</div>
+        </div>
+
+        <div class="user-profile">
+
+            <button class="notification" type="button" title="Уведомления">
+                <i class="bi bi-bell"></i>
+                <span class="notification-dot"></span>
+            </button>
+
+            <div class="profile-divider"></div>
+
+            <div class="avatar">А</div>
+
+            <div class="user-info">
+                <strong>Администратор</strong>
+                <small>Полный доступ</small>
+            </div>
+
+            <i class="bi bi-chevron-down profile-arrow"></i>
+
+        </div>
+
+    </header>
+
+    <div class="page-content">
+
+        {% block content %}{% endblock %}
+
+    </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

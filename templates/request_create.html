@@ -1,0 +1,65 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="mb-4">
+    <h2 class="fw-bold">Новая заявка</h2>
+    <p class="text-muted">Заполните информацию о клиенте и автомобиле</p>
+</div>
+
+<form method="POST" class="card border-0 shadow-sm p-4">
+
+    <h5 class="mb-3">Информация о клиенте</h5>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">ФИО клиента *</label>
+            <input name="client" class="form-control" required>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Телефон *</label>
+            <input name="phone" class="form-control" required>
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <h5 class="mb-3">Информация об автомобиле</h5>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Марка и модель *</label>
+            <input name="car" class="form-control" required>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Государственный номер</label>
+            <input name="plate" class="form-control">
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <h5 class="mb-3">Информация о неисправности</h5>
+
+    <div class="mb-4">
+        <label class="form-label">Описание проблемы *</label>
+        <textarea name="problem" class="form-control" rows="4" required></textarea>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+            Создать заявку
+        </button>
+
+        <a href="{{ url_for('requests.index') }}"
+           class="btn btn-outline-secondary">
+            Отмена
+        </a>
+    </div>
+
+</form>
+
+{% endblock %}

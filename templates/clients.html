@@ -1,0 +1,120 @@
+
+{% extends "base.html" %}
+
+{% block title %}Клиенты — АвтоПрофи-Сервис{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Клиенты</h2>
+        <p class="text-secondary mb-0">Управление клиентской базой автосервиса</p>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+{% endwith %}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="d-flex gap-2">
+            <input
+                type="text"
+                name="search"
+                class="form-control"
+                placeholder="Поиск по имени, телефону или email"
+                value="{{ search }}"
+            >
+            <button class="btn btn-light" type="submit">
+                <i class="bi bi-search"></i> Найти
+            </button>
+            <a href="{{ url_for('clients.index') }}"
+               class="btn btn-outline-secondary">
+                Сбросить
+            </a>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Клиентская база</strong>
+        <span class="text-secondary">Всего: {{ clients|length }}</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Клиент</th>
+                    <th>Телефон</th>
+                    <th>Email</th>
+                    <th>Автомобили</th>
+                    <th>Дата регистрации</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for client in clients %}
+                <tr>
+                    <td>#{{ client.id }}</td>
+                    <td class="fw-bold">{{ client.name }}</td>
+                    <td>{{ client.phone }}</td>
+                    <td>{{ client.email or "—" }}</td>
+                    <td>
+                        {% for car in client.cars %}
+                            <span class="badge bg-secondary">{{ car }}</span>
+                        {% else %}
+                            —
+                        {% endfor %}
+                    </td>
+                    <td>{{ client.date }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-secondary">
+                        Клиенты не найдены
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <strong>Добавить клиента</strong>
+    </div>
+
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('clients.create') }}">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">ФИО *</label>
+                    <input name="name" class="form-control" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Телефон *</label>
+                    <input name="phone" class="form-control" required>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Email</label>
+                    <input name="email" type="email" class="form-control">
+                </div>
+            </div>
+
+            <button class="btn btn-light mt-3" type="submit">
+                <i class="bi bi-plus-lg"></i> Добавить клиента
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
