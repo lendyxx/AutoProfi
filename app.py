@@ -7,6 +7,7 @@ from app.routes.vehicles import vehicles_bp
 from app.routes.work_catalog import work_catalog_bp
 from app.routes.parts import parts_bp
 from app.routes.employees import employees_bp
+from app.routes.reports import reports_bp
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-change-me"
@@ -17,6 +18,7 @@ app.register_blueprint(vehicles_bp)
 app.register_blueprint(work_catalog_bp)
 app.register_blueprint(parts_bp)
 app.register_blueprint(employees_bp)
+app.register_blueprint(reports_bp)
 
 
 @app.route("/")
