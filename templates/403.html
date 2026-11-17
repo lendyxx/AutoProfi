@@ -1,0 +1,24 @@
+
+{% extends "base.html" %}
+
+{% block title %}Доступ запрещён — АвтоПрофи-Сервис{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="mb-4">
+        <i class="bi bi-shield-lock"
+           style="font-size: 64px; color: #999;"></i>
+    </div>
+
+    <h2>Доступ запрещён</h2>
+
+    <p class="text-secondary mt-3">
+        У вашей учётной записи нет прав для просмотра этого раздела.
+    </p>
+
+    <a href="{{ url_for('dashboard') }}"
+       class="btn btn-light mt-3">
+        Вернуться на главную
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+# Секретные данные Firebase
+/firebase/serviceAccountKey.json
+
+# Переменные окружения
+.env
