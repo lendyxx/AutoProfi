@@ -74,6 +74,7 @@ def require_login():
 
     allowed_endpoints = {
         "auth.login",
+        "auth.register",
         "auth.create_session",
         "auth.logout",
         "static"

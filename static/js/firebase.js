@@ -4,9 +4,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebas
 import {
     getAuth,
     signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    updateProfile,
     signOut
 } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
-
 
 const firebaseConfig = {
     apiKey: "AIzaSyCD2I3zjqYiVabBH8P_FpQqt2S0TJGoBgY",
@@ -18,12 +19,13 @@ const firebaseConfig = {
     measurementId: "G-4DBHV4NFEF"
 };
 
-
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 
 export {
     signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    updateProfile,
     signOut
 };
